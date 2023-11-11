@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>正n角形ジェネレーター</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      margin-top: 10px;
+    }
+
+    input, button {
+      margin: 5px;
+      padding: 5px;
+      font-size: 14px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #result {
+      color: #333;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <label for="inputNumber">Enter a Number: </label>
+    <input type="number" id="inputNumber" min="1" value="2">
+    <button onclick="startDrawing()">Go!</button>
+    <button onclick="saveSVG()">Save SVG</button>
+  </div>
+
+  <canvas id="myCanvas" width="500" height="500"></canvas>
+
+  <div>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    function startDrawing() {
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+      var inputNumber = parseFloat(document.getElementById("inputNumber").value);
+      var angle = 360 / inputNumber;
+
+      drawLines(canvas, ctx, angle);
+    }
+
+    function drawLines(canvas, ctx, angle) {
+      var x = canvas.width / 2;
+      var y = canvas.height / 2;
+      var lineLength = 100; // Adjusted line length
+
+      function drawLine() {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        x += lineLength * Math.cos(angle * (Math.PI / 180));
+        y += lineLength * Math.sin(angle * (Math.PI / 180));
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "#3498db"; // Line color
+        ctx.lineWidth = 2; // Line width
+        ctx.stroke();
+      }
+
+      setInterval(function () {
+        drawLine();
+        angle += 360 / parseFloat(document.getElementById("inputNumber").value);
+      }, 500); // Adjust the interval as needed
+    }
+
+    function saveSVG() {
+      var svgData = '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">';
+      svgData += '<rect width="100%" height="100%" fill="#f4f4f4" />';
+      
+      var angle = 360 / parseFloat(document.getElementById("inputNumber").value);
+      var x = 250; // center x
+      var y = 250; // center y
+      var lineLength = 100;
+
+      for (var i = 0; i < parseFloat(document.getElementById("inputNumber").value); i++) {
+        svgData += '<line x1="' + x + '" y1="' + y + '" ';
+        x += lineLength * Math.cos(angle * (Math.PI / 180));
+        y += lineLength * Math.sin(angle * (Math.PI / 180));
+        svgData += 'x2="' + x + '" y2="' + y + '" stroke="#3498db" stroke-width="2" />';
+        angle += 360 / parseFloat(document.getElementById("inputNumber").value);
+      }
+
+      svgData += '</svg>';
+
+      var blob = new Blob([svgData], { type: 'image/svg+xml' });
+      var url = window.URL.createObjectURL(blob);
+
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'positive.n.square.svg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
